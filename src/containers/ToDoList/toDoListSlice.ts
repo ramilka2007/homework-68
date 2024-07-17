@@ -20,18 +20,25 @@ export const fetchToDoList = createAsyncThunk('toDoList/fetch', async () => {
 });
 
 export const EditTask = createAsyncThunk(
-    'toDoList/edit',
-    async (task: Task) => {
-      const updated = { task: task.task, done: task.done };
-      await axiosApi.put(`toDoList/${task.id}.json`, updated);
-    },
+  'toDoList/edit',
+  async (task: Task) => {
+    const updated = { task: task.task, done: task.done };
+    await axiosApi.put(`toDoList/${task.id}.json`, updated);
+  },
 );
 
 export const DeleteTask = createAsyncThunk(
-    'toDoList/delete',
-    async (task: Task) => {
-      await axiosApi.delete(`toDoList/${task}.json`);
-    },
+  'toDoList/delete',
+  async (task: Task) => {
+    await axiosApi.delete(`toDoList/${task}.json`);
+  },
+);
+
+export const AddNewTask = createAsyncThunk(
+  'toDoList/add',
+  async (task: Task) => {
+    await axiosApi.post('/toDoList.json', task);
+  },
 );
 
 export const ToDoListSlice = createSlice({
@@ -40,30 +47,63 @@ export const ToDoListSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-        .addCase(fetchToDoList.pending, (state: toDoListState) => {
-          state.isLoading = true;
-          state.error = false;
-        })
-        .addCase(fetchToDoList.fulfilled, (state: toDoListState, action) => {
-          const allTasks: Task[] = [];
+      .addCase(fetchToDoList.pending, (state: toDoListState) => {
+        state.isLoading = true;
+        state.error = false;
+      })
+      .addCase(fetchToDoList.fulfilled, (state: toDoListState, action) => {
+        const allTasks: Task[] = [];
 
-          if (action.payload) {
-            for (const [key, value] of Object.entries(action.payload)) {
-              allTasks.push({
-                id: key,
-                task: value.task,
-                done: value.done,
-              });
-            }
+        if (action.payload) {
+          for (const [key, value] of Object.entries(action.payload)) {
+            allTasks.push({
+              id: key,
+              task: value.task,
+              done: value.done,
+            });
           }
+        }
 
-          state.tasks = allTasks;
-          state.isLoading = false;
-        })
-        .addCase(fetchToDoList.rejected, (state: toDoListState) => {
-          state.isLoading = false;
-          state.error = true;
-        });
+        state.tasks = allTasks;
+        state.isLoading = false;
+      })
+      .addCase(fetchToDoList.rejected, (state: toDoListState) => {
+        state.isLoading = false;
+        state.error = true;
+      })
+      .addCase(EditTask.pending, (state: toDoListState) => {
+        state.isLoading = true;
+        state.error = false;
+      })
+      .addCase(EditTask.fulfilled, (state: toDoListState) => {
+        state.isLoading = false;
+      })
+      .addCase(EditTask.rejected, (state: toDoListState) => {
+        state.isLoading = false;
+        state.error = true;
+      })
+      .addCase(DeleteTask.pending, (state: toDoListState) => {
+        state.isLoading = true;
+        state.error = false;
+      })
+      .addCase(DeleteTask.fulfilled, (state: toDoListState) => {
+        state.isLoading = false;
+      })
+      .addCase(DeleteTask.rejected, (state: toDoListState) => {
+        state.isLoading = false;
+        state.error = true;
+      })
+      .addCase(AddNewTask.pending, (state: toDoListState) => {
+        state.isLoading = true;
+        state.error = false;
+      })
+      .addCase(AddNewTask.fulfilled, (state: toDoListState) => {
+        state.isLoading = false;
+      })
+      .addCase(AddNewTask.rejected, (state: toDoListState) => {
+        state.isLoading = false;
+        state.error = true;
+      });
   },
 });
 
